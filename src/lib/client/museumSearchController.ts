@@ -138,14 +138,9 @@ export function mountMuseumSearch(): void {
     }
   }
 
-  searchForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const query = queryInput.value.trim();
-    if (!query) return;
-
+  async function performSearch(query: string, source: string, options: { silent?: boolean } = {}): Promise<void> {
     const params = new URLSearchParams({ q: query });
-    if (sourceSelect.value) params.set("source", sourceSelect.value);
+    if (source) params.set("source", source);
 
     searchButton.disabled = true;
     statusEl.textContent = "Searching the Met, the Art Institute of Chicago, and the Cleveland Museum of Art…";
@@ -160,12 +155,31 @@ export function mountMuseumSearch(): void {
       const data = await res.json();
       renderResults(data.results as MuseumSearchRecord[]);
     } catch (error) {
-      statusEl.textContent = "";
-      reportError(error);
+      if (options.silent) {
+        statusEl.textContent = "Couldn't load an initial search. Try searching above.";
+      } else {
+        statusEl.textContent = "";
+        reportError(error);
+      }
     } finally {
       searchButton.disabled = false;
     }
+  }
+
+  searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const query = queryInput.value.trim();
+    if (!query) return;
+
+    performSearch(query, sourceSelect.value);
   });
+
+  // Default initial view: search a well-known artist so the homepage shows real
+  // results immediately instead of an empty state on first load.
+  const DEFAULT_QUERY = "Kandinsky";
+  queryInput.value = DEFAULT_QUERY;
+  performSearch(DEFAULT_QUERY, sourceSelect.value, { silent: true });
 
   saveButton.addEventListener("click", async () => {
     const records = [...selectedIds].map((id) => recordsById.get(id)).filter(Boolean) as MuseumSearchRecord[];

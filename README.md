@@ -17,6 +17,9 @@ npm run dev
 - `/gallery` — "My gallery": grouped-by-artist view of everything you've saved under `museums/*` in
   Cloudinary (this is what used to live at `/`).
 - `/story-builder` A story-creation studio.
+- `/archive` — temporary, read-only home for every story once it's marked ready for review. Each
+  conserved exposition renders as its own exhibition wall; a "Download as PDF" button on the
+  Story Builder's preview lets you keep one as a file.
 - `GET /api/museum-search` — live, read-only search across the three museum APIs (`q`, optional
   `source`, `limit`). Uploads nothing; results carry everything needed to save them later.
 - `POST /api/museum-save` — uploads a caller-supplied list of museum records (as returned by
@@ -25,6 +28,9 @@ npm run dev
   uploads every match into Cloudinary in one call (useful for scripted ingestion).
 - `GET /api/assets` — lists Cloudinary assets under `museums/*`; also accepts `q`, `source`,
   `artist`, `ids` (comma-separated public ids), and `limit` query params for filtered/search use.
+
+Every page shares a `Header`/`Footer` pair (`src/components/`) — same nav links, same 1400px
+content width, same footer height, stuck to the bottom of the viewport on short pages.
 
 Run the test suite with:
 
@@ -37,7 +43,9 @@ npm run test
 The Agentic Builder is a story-creation layer on top of the existing museum collection. Ask an agent to build a virtual museum exposition card set using an art grouping that you create. 
 It will search the saved Cloudinary collection, start an unpublished draft, add objects to it, arrange
 them into a sequence, write captions/narrative text, and invite you to view the result as a small
-exhibition wall. A human can then mark the story "ready for review" and create the final exposition card.
+exhibition wall. A human can then mark the story "ready for review," which moves it out of the
+Story Builder's draft list and into `/archive` as a read-only exposition — from
+there it can also be downloaded as a PDF to keep.
 
 Drafts are stored in the browser (`localStorage`), behind a small `StoryRepository` interface
 (`src/lib/stories/storyRepository.ts`) so the persistence layer can be swapped for an authenticated
@@ -53,7 +61,7 @@ between the two paths. Registration is feature-detected: on a browser without
 status pill under the page intro reports `WebMCP: ready (8 tools)` or `WebMCP: unavailable`.
 
 WebMCP (`document.modelContext`) is a very new, fast-moving browser proposal — as of when this was
-written, Gemini in Chrome does not peruse the site as expected, but you can you Claude's Chrome extension to good effect. Not in Chrome? Seeing "unavailable" here doesn't
+written, Gemini in Chrome does not peruse the site as expected, but you can use Claude's Chrome extension to good effect. Not in Chrome? Seeing "unavailable" here doesn't
 mean this page's tools are broken — it likely means the browser you're testing in doesn't expose
 `document.modelContext` yet. Every tool call is also logged to the browser console
 (`console.debug`) as `[webmcp] <tool name> succeeded/failed` for debugging live agent runs.
@@ -70,7 +78,7 @@ Those handlers are exercised directly in `toolHandlers.test.ts` without needing 
 | Edit item text | Sets an item's caption/narrativeText | Length-limited; stored as plain text and always rendered via `textContent`, never `innerHTML` |
 | Arrange items | Reorders a draft's items | Rejects any list that isn't exactly a permutation of the existing item ids |
 | Preview | Renders the story as a small exhibition wall (a fixed-size framed-card grid, one frame per item) | Read-only with respect to story data |
-| Request review | Sets status to `ready_for_review` | **Never publishes.** Requires at least one item; a human must still take a separate, explicit action to publish anything |
+| Request review | Sets status to `ready_for_review`, moving the draft into `/archive` and out of the Story Builder's picker | **Never publishes.** Requires at least one item; a human must still take a separate, explicit action to publish anything |
 
 ### Accessibility
 
@@ -80,17 +88,30 @@ Those handlers are exercised directly in `toolHandlers.test.ts` without needing 
 - Attribution (title, artist, date, source link) is preserved and shown for every item.
 - All dynamic text (search results, sequence items, preview) is built with DOM APIs and
   `textContent`/`createTextNode` — never `innerHTML`.
+- Selecting search results to save (on `/`) works from the keyboard: each result's checkbox has an
+  `aria-label` and drives selection via its own `change` event, not just a mouse click on the card.
+- Every interactive control across all four pages (inputs, selects, buttons, checkboxes) gets the
+  same visible gold `:focus-visible` outline.
+
+## Deployment
+
+This app is server-rendered (search, gallery, and archive pages all fetch from Cloudinary at
+request time) and deploys to Netlify via `@astrojs/netlify` (configured in `astro.config.mjs`).
+`npm run build` produces a Netlify Function alongside the static assets. Set the same four
+`CLOUDINARY_*` variables from `.env` in the Netlify site's **Site settings → Environment
+variables** — without them, requests to `/api/assets` (and anything that depends on it) fail at
+request time the same way they'd fail locally without a `.env` file.
+
+## Design system
+
+`PRODUCT.md` and `DESIGN.md` (plus its `DESIGN.json` sidecar) at the project root capture the
+strategic and visual design system — who this is for, the OKLCH ink/gold palette, typography,
+and component patterns — so future work stays consistent instead of drifting page by page.
 
 ### Known limitations / next steps
 
 - Drafts are local to one browser (`localStorage`); there is no cross-device sync or multi-user
   editing yet — swapping in a server-backed `StoryRepository` is the intended next step.
-- `npm run build` currently fails with `NoAdapterInstalled` — this is pre-existing (the API routes
-  were already server-rendered before this change) and requires choosing and configuring an Astro
-  server adapter for whatever host this app is eventually deployed to; out of scope for this MVP.
 - `add_story_items` re-fetches `/api/assets?ids=...` to verify each asset; for very large collections
   this endpoint's in-memory filtering (capped at the most recent 100 Cloudinary assets) would want
   to move to a proper Cloudinary Search expression instead.
-- `src/components/MediaGrid.astro` and `MuseumFilters.astro` are unused leftovers from earlier work
-  (the former still has starter-template content, the latter is empty) — left untouched since they
-  aren't wired into any page, but worth deleting in a follow-up cleanup.
