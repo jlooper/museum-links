@@ -1,0 +1,396 @@
+---
+import {
+  getAssetContextValue,
+  getAssetImageUrl,
+  getAssetTitle,
+  type CloudinaryAsset,
+} from "../lib/cloudinaryAsset";
+import { getMuseumLabel } from "../lib/museumLabels";
+
+const res = await fetch(new URL("/api/assets", Astro.url));
+
+if (!res.ok) {
+  const text = await res.text();
+  throw new Error(`/api/assets failed: ${res.status}\n${text}`);
+}
+
+const assets: CloudinaryAsset[] = await res.json();
+
+const getMeta = (asset: CloudinaryAsset, key: string) => getAssetContextValue(asset, key);
+const getImageUrl = (asset: CloudinaryAsset) =>
+  getAssetImageUrl(asset, import.meta.env.CLOUDINARY_CLOUD_NAME, {
+    crop: "fill",
+    gravity: "auto",
+    width: 512,
+    height: 544,
+  });
+const getTitle = (asset: CloudinaryAsset) => getAssetTitle(asset);
+
+const groups = assets.reduce<Record<string, CloudinaryAsset[]>>((acc, asset) => {
+  const artist = getMeta(asset, "artist");
+  acc[artist] ||= [];
+  acc[artist].push(asset);
+  return acc;
+}, {});
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>My Gallery — Museum Media Grouper</title>
+
+    <style>
+      :root {
+        --ink: oklch(0.13 0.008 264);
+        --ink-2: oklch(0.17 0.01 262);
+        --ink-3: oklch(0.21 0.012 260);
+        --gold: oklch(0.71 0.1 88);
+        --gold-2: oklch(0.81 0.09 90);
+        --bone: oklch(0.92 0.03 92);
+        --bone-2: oklch(0.74 0.03 90);
+        --line: oklch(0.71 0.1 88 / 20%);
+        --space-xs: 0.5rem;
+        --space-sm: 0.9rem;
+        --space-md: 1.5rem;
+        --space-lg: 2.5rem;
+        --space-xl: 4rem;
+      }
+
+      body {
+        margin: 0;
+        padding: clamp(1rem, 3vw, 2.5rem);
+        background: var(--ink);
+        color: var(--bone);
+        font-family: "Jost", "Avenir Next", Avenir, sans-serif;
+        animation: fade-up 0.8s cubic-bezier(0.32, 0.72, 0, 1) both;
+      }
+
+      main {
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      .top-nav {
+        margin-bottom: var(--space-lg);
+        display: flex;
+        gap: var(--space-md);
+      }
+
+      .top-nav a {
+        color: var(--gold-2);
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+
+      h1 {
+        margin: 0 0 var(--space-lg);
+        color: var(--gold-2);
+        font-family: "Cinzel", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        font-size: clamp(2.25rem, 5vw, 3rem);
+      }
+
+      .search-wrap {
+        margin-bottom: var(--space-xl);
+      }
+
+      #search {
+        width: 100%;
+        max-width: 34rem;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+      }
+
+      section {
+        margin-bottom: var(--space-xl);
+      }
+
+      h2 {
+        margin: 0 0 var(--space-md);
+        border-bottom: 1px solid var(--line);
+        padding-bottom: var(--space-xs);
+        color: var(--gold);
+        font-family: "Cinzel", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        font-size: 1.8rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 18rem));
+        gap: var(--space-lg) var(--space-md);
+      }
+
+      .card {
+        min-width: 0;
+        height: 34rem;
+        background: var(--ink-2);
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        overflow: hidden;
+        box-shadow: 0 1rem 2rem oklch(0.05 0.01 264 / 28%);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s ease, border-color 0.25s ease;
+        animation: fade-up 0.8s cubic-bezier(0.32, 0.72, 0, 1) both;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: oklch(0.81 0.09 90 / 60%);
+      }
+
+      .image-wrap {
+        position: relative;
+        height: 19rem;
+        flex-shrink: 0;
+        background: var(--ink-3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .image-wrap::after {
+        display: none;
+      }
+
+      .image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        margin: 0;
+        padding: 0.45rem;
+        border: 1px solid oklch(0.71 0.1 88 / 55%);
+        box-sizing: border-box;
+      }
+
+      .meta {
+        min-height: 0;
+        padding: var(--space-md);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+        overflow: hidden;
+      }
+
+      .meta h3 {
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      .delete-button {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 2;
+        padding: 0.45rem 0.7rem;
+        border: 1px solid oklch(0.65 0.16 30 / 70%);
+        border-radius: 2px;
+        background: var(--ink);
+        color: oklch(0.78 0.12 30);
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+      }
+
+      .delete-button:hover {
+        background: oklch(0.65 0.16 30 / 20%);
+      }
+
+      .delete-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        background: var(--ink-3);
+        color: var(--gold-2);
+        font-size: 0.8rem;
+        width: fit-content;
+      }
+
+      dl {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 0.5rem;
+        margin: 0;
+      }
+
+      dt {
+        font-weight: 700;
+      }
+
+      dd {
+        margin: 0;
+        color: var(--bone-2);
+        word-break: break-word;
+      }
+
+      a {
+        color: var(--gold-2);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      @keyframes fade-up {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 36rem) {
+        h2 {
+          font-size: 1.45rem;
+        }
+
+        .grid {
+          gap: var(--space-lg);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <nav class="top-nav">
+        <a href="/">&larr; Search museums</a>
+        <a href="/story-builder">Try the WebMCP story builder &rarr;</a>
+        <a href="/archive">Archive &rarr;</a>
+      </nav>
+      <h1>My Gallery</h1>
+
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Search artists..." />
+      </div>
+
+      {Object.entries(groups).map(([artist, items]) => (
+        <section class="artist-group" data-artist={artist.toLowerCase()}>
+          <h2>{artist} ({items.length})</h2>
+
+          <div class="grid">
+            {items.map((asset) => (
+              <article class="card">
+                <div class="image-wrap">
+                  <img src={getImageUrl(asset)} alt={getTitle(asset)} loading="lazy" />
+                  <button
+                    class="delete-button"
+                    type="button"
+                    data-public-id={asset.public_id || asset.publicId}
+                    data-title={getTitle(asset)}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <div class="meta">
+                  <p class="badge">{getMuseumLabel(getMeta(asset, "museum_source"))}</p>
+                  <h3>{getTitle(asset)}</h3>
+
+                  <dl>
+                    <dt>Department</dt>
+                    <dd>{getMeta(asset, "department")}</dd>
+
+                    <dt>External ID</dt>
+                    <dd>{getMeta(asset, "external_id")}</dd>
+
+                    <dt>Medium</dt>
+                    <dd>{getMeta(asset, "medium")}</dd>
+
+                    <dt>Period</dt>
+                    <dd>{getMeta(asset, "period")}</dd>
+
+
+                    <dt>Source</dt>
+                    <dd>
+                      {getMeta(asset, "source_url") !== "Unknown" ? (
+                        <a href={getMeta(asset, "source_url")} target="_blank" rel="noreferrer">
+                          View source
+                        </a>
+                      ) : (
+                        "Unknown"
+                      )}
+                    </dd>
+                  </dl>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+    </main>
+
+    <script>
+      const search = document.querySelector<HTMLInputElement>("#search");
+      const groups = document.querySelectorAll<HTMLElement>(".artist-group");
+      const deleteButtons = document.querySelectorAll<HTMLButtonElement>(".delete-button");
+
+      search?.addEventListener("input", (e) => {
+        const value = (e.target as HTMLInputElement).value.toLowerCase();
+
+        groups.forEach((group) => {
+          const artist = group.dataset.artist || "";
+          group.style.display = artist.includes(value) ? "block" : "none";
+        });
+      });
+
+      deleteButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          const publicId = button.dataset.publicId;
+          const title = button.dataset.title || "this image";
+          if (!publicId || !window.confirm(`Delete "${title}" from the gallery? This cannot be undone.`)) {
+            return;
+          }
+
+          button.disabled = true;
+          button.textContent = "…";
+
+          try {
+            const response = await fetch("/api/assets", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ publicId }),
+            });
+
+            if (!response.ok) {
+              const result = await response.json().catch(() => ({}));
+              throw new Error(result.error || "Delete failed.");
+            }
+
+            window.location.reload();
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = "Delete";
+            window.alert(error instanceof Error ? error.message : String(error));
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

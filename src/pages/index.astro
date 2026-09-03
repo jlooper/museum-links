@@ -1,44 +1,36 @@
 ---
-const res = await fetch(new URL("/api/assets", Astro.url));
-
-if (!res.ok) {
-  const text = await res.text();
-  throw new Error(`/api/assets failed: ${res.status}\n${text}`);
-}
-
-const assets = await res.json();
-
-const getMeta = (asset, key) =>
-  asset.context?.[key] || asset.context?.custom?.[key] || "Unknown";
-
-const getImageUrl = (asset) =>
-  asset.secure_url ||
-  asset.secureUrl ||
-  `https://res.cloudinary.com/${import.meta.env.CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/${asset.public_id || asset.publicId}`;
-
-const getTitle = (asset) =>
-  getMeta(asset, "caption") || asset.title || asset.public_id || "Untitled";
-
-const groups = assets.reduce((acc, asset) => {
-  const artist = getMeta(asset, "artist");
-  acc[artist] ||= [];
-  acc[artist].push(asset);
-  return acc;
-}, {});
+export const prerender = false;
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Museum Media Grouper</title>
 
-    <style>
+    <style is:global>
+      :root {
+        --ink: oklch(0.13 0.008 264);
+        --ink-2: oklch(0.17 0.01 262);
+        --ink-3: oklch(0.21 0.012 260);
+        --gold: oklch(0.71 0.1 88);
+        --gold-2: oklch(0.81 0.09 90);
+        --bone: oklch(0.92 0.03 92);
+        --bone-2: oklch(0.74 0.03 90);
+        --line: oklch(0.71 0.1 88 / 20%);
+        --space-xs: 0.5rem;
+        --space-sm: 0.9rem;
+        --space-md: 1.5rem;
+        --space-lg: 2.5rem;
+        --space-xl: 4rem;
+      }
+
       body {
         margin: 0;
-        padding: 2rem;
-        background: #f6f6f6;
-        color: #222;
-        font-family: Inter, system-ui, sans-serif;
+        padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 6rem;
+        background: var(--ink);
+        color: var(--bone);
+        font-family: "Jost", "Avenir Next", Avenir, sans-serif;
       }
 
       main {
@@ -46,192 +38,317 @@ const groups = assets.reduce((acc, asset) => {
         margin: 0 auto;
       }
 
+      .top-nav {
+        margin-bottom: var(--space-lg);
+        display: flex;
+        gap: var(--space-md);
+      }
+
+      .top-nav a {
+        color: var(--gold-2);
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+
       h1 {
-        margin-bottom: 3rem;
-        font-size: 3rem;
+        margin: 0 0 var(--space-sm);
+        color: var(--gold-2);
+        font-family: "Cinzel", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        font-size: clamp(2.25rem, 5vw, 3rem);
       }
 
-      .search-wrap {
-        margin-bottom: 3rem;
+      .intro {
+        margin: 0 0 var(--space-lg);
+        color: var(--bone-2);
+        max-width: 60ch;
       }
 
-      #search {
+      #search-form {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin-bottom: var(--space-sm);
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .field label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--bone-2);
+      }
+
+      #search-query {
         width: 100%;
-        max-width: 500px;
+        min-width: 18rem;
+        max-width: 34rem;
         padding: 1rem;
         border-radius: 12px;
         border: 1px solid #ccc;
         font-size: 1rem;
+        font: inherit;
       }
 
-      section {
-        margin-bottom: 4rem;
+      #search-source {
+        font: inherit;
+        padding: 0.65rem 0.7rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--ink-3);
+        color: inherit;
       }
 
-      h2 {
-        margin-bottom: 1.5rem;
-        border-bottom: 2px solid #ddd;
-        padding-bottom: 0.5rem;
-        font-size: 1.8rem;
+      #search-form button {
+        font: inherit;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.2rem;
+        background: var(--gold);
+        color: var(--ink);
+        font-weight: 600;
       }
 
-      .grid {
+      #search-form button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      #search-status {
+        margin: 0 0 var(--space-lg);
+        color: var(--bone-2);
+        min-height: 1.2em;
+      }
+
+      ol#search-results {
+        list-style: none;
+        margin: 0;
+        padding: 0;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(380px, 380px));
-        gap: 1.5rem;
-        justify-content: start;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 18rem));
+        gap: var(--space-lg) var(--space-md);
       }
 
-      .card {
-        width: 380px;
-        background: white;
-        border-radius: 16px;
+      li.result-card {
+        min-width: 0;
+        height: 34rem;
+        background: var(--ink-2);
+        border: 1px solid var(--line);
+        border-radius: 2px;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1rem 2rem oklch(0.05 0.01 264 / 28%);
         display: flex;
         flex-direction: column;
-        transition: transform 0.2s ease;
+        cursor: pointer;
+        transition: transform 0.25s ease, border-color 0.25s ease;
       }
 
-      .card:hover {
+      li.result-card:hover {
         transform: translateY(-4px);
+        border-color: oklch(0.81 0.09 90 / 60%);
       }
 
-      .image-wrap {
-        background: #f0f0f0;
+      li.result-card.selected {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px var(--gold), 0 1rem 2rem oklch(0.05 0.01 264 / 28%);
+      }
+
+      li.result-card.saved {
+        cursor: default;
+        opacity: 0.6;
+      }
+
+      .result-image-wrap {
+        position: relative;
+        height: 19rem;
+        flex-shrink: 0;
+        background: var(--ink-3);
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 360px;
         padding: 1rem;
       }
 
-      .image-wrap img {
-        max-width: 100%;
-        max-height: 100%;
-        width: auto;
-        height: auto;
-        object-fit: contain;
+      .result-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         display: block;
+        margin: 0;
+        padding: 0.45rem;
+        border: 1px solid oklch(0.71 0.1 88 / 55%);
+        box-sizing: border-box;
       }
 
-      .meta {
-        padding: 1rem;
+      .result-image-wrap input[type="checkbox"] {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 1.4rem;
+        height: 1.4rem;
+        accent-color: var(--gold);
+        pointer-events: none;
+      }
+
+      .saved-badge {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 2px;
+        background: var(--gold);
+        color: var(--ink);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .card-body {
+        min-height: 0;
+        padding: var(--space-md);
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: var(--space-sm);
+        overflow: hidden;
       }
 
-      .meta h3 {
+      .card-body h3 {
         margin: 0;
         line-height: 1.3;
       }
 
+      .card-body p {
+        margin: 0;
+        color: var(--bone-2);
+      }
+
       .badge {
         display: inline-block;
-        padding: 0.3rem 0.6rem;
+        padding: 0.3rem 0.7rem;
         border-radius: 999px;
-        background: #ececec;
+        background: var(--ink-3);
+        color: var(--gold-2);
         font-size: 0.8rem;
         width: fit-content;
       }
 
-      dl {
-        display: grid;
-        grid-template-columns: 110px 1fr;
-        gap: 0.5rem;
-        margin: 0;
-      }
-
-      dt {
-        font-weight: 700;
-      }
-
-      dd {
-        margin: 0;
-        color: #444;
-        word-break: break-word;
-      }
-
       a {
-        color: #0066cc;
+        color: var(--gold-2);
         text-decoration: none;
       }
 
       a:hover {
         text-decoration: underline;
       }
+
+      #save-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        padding: 1rem clamp(1rem, 3vw, 2.5rem);
+        background: var(--ink-2);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -0.5rem 1.5rem oklch(0.05 0.01 264 / 40%);
+        z-index: 10;
+      }
+
+      #save-bar[hidden] {
+        display: none;
+      }
+
+      #save-button {
+        font: inherit;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.2rem;
+        background: var(--gold);
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      #save-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      #save-result {
+        margin: var(--space-md) 0 0;
+      }
+
+      .save-success {
+        color: var(--bone);
+      }
+
+      .save-failed {
+        color: oklch(0.78 0.12 30);
+      }
+
+      @media (max-width: 36rem) {
+        #search-form {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
     </style>
   </head>
 
   <body>
     <main>
+      <nav class="top-nav">
+        <a href="/gallery">My gallery &rarr;</a>
+        <a href="/story-builder">Try the WebMCP story builder &rarr;</a>
+        <a href="/archive">Archive &rarr;</a>
+      </nav>
       <h1>Museum Media Grouper</h1>
+      <p class="intro">
+        Search the Met, the Art Institute of Chicago, and the Cleveland Museum of Art at once.
+        Nothing is saved until you pick the paintings you want and add them to your gallery.
+      </p>
 
-      <div class="search-wrap">
-        <input id="search" type="search" placeholder="Search artists..." />
-      </div>
+      <form id="search-form">
+        <div class="field">
+          <label for="search-query">Artist or keyword</label>
+          <input id="search-query" type="search" placeholder="Monet, textiles, portrait…" required />
+        </div>
+        <div class="field">
+          <label for="search-source">Museum</label>
+          <select id="search-source">
+            <option value="">All museums</option>
+            <option value="met">The Met</option>
+            <option value="artic">Art Institute of Chicago</option>
+            <option value="cleveland">Cleveland Museum of Art</option>
+          </select>
+        </div>
+        <button type="submit">Search</button>
+      </form>
 
-      {Object.entries(groups).map(([artist, items]) => (
-        <section class="artist-group" data-artist={artist.toLowerCase()}>
-          <h2>{artist} ({items.length})</h2>
+      <p id="search-status" role="status" aria-live="polite"></p>
 
-          <div class="grid">
-            {items.map((asset) => (
-              <article class="card">
-                <div class="image-wrap">
-                  <img src={getImageUrl(asset)} alt={getTitle(asset)} loading="lazy" />
-                </div>
+      <ol id="search-results"></ol>
 
-                <div class="meta">
-                  <p class="badge">{getMeta(asset, "museum_source")}</p>
-                  <h3>{getTitle(asset)}</h3>
-
-                  <dl>
-                    <dt>Department</dt>
-                    <dd>{getMeta(asset, "department")}</dd>
-
-                    <dt>External ID</dt>
-                    <dd>{getMeta(asset, "external_id")}</dd>
-
-                    <dt>Medium</dt>
-                    <dd>{getMeta(asset, "medium")}</dd>
-
-                    <dt>Period</dt>
-                    <dd>{getMeta(asset, "period")}</dd>
-
-                   
-                    <dt>Source</dt>
-                    <dd>
-                      {getMeta(asset, "source_url") !== "Unknown" ? (
-                        <a href={getMeta(asset, "source_url")} target="_blank" rel="noreferrer">
-                          View source
-                        </a>
-                      ) : (
-                        "Unknown"
-                      )}
-                    </dd>
-                  </dl>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+      <div id="save-result"></div>
     </main>
 
+    <div id="save-bar" hidden>
+      <span><strong id="selected-count">0</strong> selected</span>
+      <button id="save-button" type="button" disabled>Save selected to my gallery</button>
+    </div>
+
     <script>
-      const search = document.querySelector("#search");
-      const groups = document.querySelectorAll(".artist-group");
-
-      search?.addEventListener("input", (e) => {
-        const value = e.target.value.toLowerCase();
-
-        groups.forEach((group) => {
-          const artist = group.dataset.artist || "";
-          group.style.display = artist.includes(value) ? "block" : "none";
-        });
-      });
+      import { mountMuseumSearch } from "../lib/client/museumSearchController";
+      mountMuseumSearch();
     </script>
   </body>
 </html>

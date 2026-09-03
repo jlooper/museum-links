@@ -1,4 +1,4 @@
-export type MuseumSource = "met" | "artic";
+export type MuseumSource = "met" | "artic" | "cleveland";
 
 export type MuseumRecord = {
   source: MuseumSource;
@@ -98,4 +98,65 @@ export async function fetchArticRecords(query = "painting", limit = 10) {
       imageUrl: `https://www.artic.edu/iiif/2/${item.image_id}/full/843,/0/default.jpg`,
       sourceUrl: item.api_link,
     })) satisfies MuseumRecord[];
+}
+
+export async function fetchClevelandRecords(query = "painting", limit = 10) {
+  const url = new URL("https://openaccess-api.clevelandart.org/api/artworks/");
+
+  url.searchParams.set("q", query);
+  url.searchParams.set("has_image", "1");
+  url.searchParams.set("limit", String(limit));
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Cleveland Museum of Art search failed: ${res.status}`);
+
+  const json = await res.json();
+
+  return (json.data ?? [])
+    .filter((item: any) => item.images?.web?.url)
+    .map((item: any) => ({
+      source: "cleveland",
+      externalId: item.id,
+      title: item.title ?? "Untitled",
+      artist: item.creators?.map((creator: any) => creator.description).filter(Boolean).join("; "),
+      date: item.creation_date ?? item.date_text,
+      medium: item.technique,
+      department: item.department,
+      rights: item.share_license_status,
+      imageUrl: item.images.web.url,
+      sourceUrl: item.url,
+    })) satisfies MuseumRecord[];
+}
+
+export function matchesArtistName(record: Pick<MuseumRecord, "artist">, query: string): boolean {
+  const q = query.toLowerCase().trim();
+  const artist = String(record.artist || "").toLowerCase();
+
+  return artist.includes(q);
+}
+
+export function getMuseumRecordId(record: Pick<MuseumRecord, "source" | "externalId">): string {
+  return `${record.source}-${record.externalId}`;
+}
+
+export type FetchAllMuseumRecordsOptions = {
+  source?: MuseumSource | "both";
+  query?: string;
+  limit?: number;
+  strictArtist?: boolean;
+};
+
+export async function fetchAllMuseumRecords({
+  source = "both",
+  query = "painting",
+  limit = 10,
+  strictArtist = true,
+}: FetchAllMuseumRecordsOptions = {}): Promise<MuseumRecord[]> {
+  const records = [
+    ...(source === "met" || source === "both" ? await fetchMetRecords(query, limit) : []),
+    ...(source === "artic" || source === "both" ? await fetchArticRecords(query, limit) : []),
+    ...(source === "cleveland" || source === "both" ? await fetchClevelandRecords(query, limit) : []),
+  ];
+
+  return strictArtist ? records.filter((record) => matchesArtistName(record, query)) : records;
 }

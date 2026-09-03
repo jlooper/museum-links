@@ -1,0 +1,201 @@
+---
+export const prerender = false;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Archive — Museum Story Builder</title>
+
+    <style is:global>
+      :root {
+        color-scheme: dark;
+        --ink: oklch(0.13 0.008 264);
+        --ink-2: oklch(0.17 0.01 262);
+        --ink-3: oklch(0.21 0.012 260);
+        --gold: oklch(0.71 0.1 88);
+        --gold-2: oklch(0.81 0.09 90);
+        --bone: oklch(0.92 0.03 92);
+        --bone-2: oklch(0.74 0.03 90);
+        --line: oklch(0.71 0.1 88 / 20%);
+      }
+
+      body {
+        margin: 0;
+        padding: 0 0 4rem;
+        background: var(--ink);
+        color: var(--bone);
+        font-family: "Jost", "Avenir Next", Avenir, sans-serif;
+      }
+
+      header.masthead {
+        padding: 2.5rem 2rem 1.5rem;
+        border-bottom: 1px solid var(--line);
+        background: var(--ink-2);
+      }
+
+      .masthead-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      header.masthead h1 {
+        color: var(--gold-2);
+        font-family: "Cinzel", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        font-size: 2.4rem;
+        margin: 0 0 0.35rem;
+      }
+
+      header.masthead p {
+        margin: 0;
+        color: var(--bone-2);
+        max-width: 60ch;
+      }
+
+      nav.top-nav {
+        display: flex;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+      }
+
+      nav.top-nav a {
+        color: var(--gold-2);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      main {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem 0;
+      }
+
+      .empty-state {
+        color: var(--bone-2);
+        font-size: 1rem;
+      }
+
+      .empty-state a {
+        color: var(--gold-2);
+      }
+
+      .exposition-divider {
+        border: none;
+        border-top: 1px solid var(--line);
+        margin: 3rem 0;
+      }
+
+      .story-page {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .story-page > h1 {
+        color: var(--gold-2);
+        font-family: "Cinzel", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        text-align: center;
+        margin: 0 0 1.75rem;
+      }
+
+      .exhibition-wall {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .frame {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        background: var(--ink-3);
+        border: 1px solid var(--line);
+        box-shadow: 0 1rem 2rem oklch(0.05 0.01 264 / 28%);
+        padding: 1rem;
+      }
+
+      .frame img {
+        display: block;
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+        margin: 0 0 0.9rem;
+        padding: 0.45rem;
+        border: 1px solid oklch(0.71 0.1 88 / 55%);
+        box-sizing: border-box;
+        background: var(--ink);
+      }
+
+      .frame figcaption {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .attribution {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--gold-2);
+      }
+
+      .plaque-caption {
+        margin: 0;
+        font-size: 0.85rem;
+        font-style: italic;
+        color: var(--bone);
+      }
+
+      .plaque-narrative {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--bone-2);
+      }
+
+      .frame a {
+        font-size: 0.78rem;
+      }
+
+      a {
+        color: var(--gold-2);
+      }
+
+      @media (max-width: 680px) {
+        header.masthead {
+          padding: 1.5rem 1rem 1rem;
+        }
+
+        header.masthead h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <nav class="top-nav">
+          <a href="/">&larr; Museum gallery</a>
+          <a href="/story-builder">Story Builder</a>
+        </nav>
+        <h1>Archive</h1>
+        <p>
+          Every exposition that's been finished and marked ready for review, conserved here
+          permanently as a read-only exhibition wall.
+        </p>
+      </div>
+    </header>
+
+    <main id="archive-content"></main>
+
+    <script>
+      import { mountArchive } from "../lib/client/archiveController";
+      mountArchive();
+    </script>
+  </body>
+</html>

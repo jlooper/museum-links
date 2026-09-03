@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { cloudinary } from "../../lib/cloudinary";
-import { fetchArticRecords, fetchMetRecords } from "../../lib/museums";
+import { fetchAllMuseumRecords, matchesArtistName } from "../../lib/museums";
+import { uploadMuseumRecord } from "../../lib/museumUpload";
 
 export const prerender = false;
 
@@ -14,13 +14,6 @@ function getErrorDetail(error: unknown) {
   }
 }
 
-function matchesArtist(record: any, query: string) {
-  const q = query.toLowerCase().trim();
-  const artist = String(record.artist || "").toLowerCase();
-
-  return artist.includes(q);
-}
-
 export const POST: APIRoute = async ({ request }) => {
   try {
     const {
@@ -30,57 +23,15 @@ export const POST: APIRoute = async ({ request }) => {
       strictArtist = true,
     } = await request.json();
 
-    const records = [
-      ...(source === "met" || source === "both"
-        ? await fetchMetRecords(query, limit)
-        : []),
-      ...(source === "artic" || source === "both"
-        ? await fetchArticRecords(query, limit)
-        : []),
-    ];
-
+    const records = await fetchAllMuseumRecords({ source, query, limit, strictArtist: false });
     const filteredRecords = strictArtist
-      ? records.filter((record) => matchesArtist(record, query))
+      ? records.filter((record) => matchesArtistName(record, query))
       : records;
 
     const uploaded = [];
 
     for (const record of filteredRecords) {
-      const upload = await cloudinary.uploader.upload(record.imageUrl, {
-        upload_preset: import.meta.env.CLOUDINARY_UPLOAD_PRESET,
-        folder: `museums/${record.source}`,
-        public_id: `${record.source}-${record.externalId}`,
-        overwrite: false,
-
-        tags: [
-          record.source,
-          record.department,
-          record.medium,
-          record.period,
-          record.date,
-        ].filter(Boolean),
-
-        context: {
-          caption: record.title,
-          alt: `${record.title}${record.artist ? ` by ${record.artist}` : ""}`,
-          source_url: record.sourceUrl ?? "",
-          museum_source: record.source,
-          external_id: String(record.externalId),
-          artist: record.artist ?? "",
-          period: record.period ?? record.date ?? "",
-          medium: record.medium ?? "",
-          rights: record.rights ?? "",
-          department: record.department ?? "",
-        },
-      });
-
-      uploaded.push({
-        title: record.title,
-        source: record.source,
-        artist: record.artist,
-        publicId: upload.public_id,
-        secureUrl: upload.secure_url,
-      });
+      uploaded.push(await uploadMuseumRecord(record));
     }
 
     return Response.json({
