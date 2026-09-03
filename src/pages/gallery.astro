@@ -9,6 +9,8 @@ import { getMuseumLabel } from "../lib/museumLabels";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 
+export const prerender = false;
+
 const res = await fetch(new URL("/api/assets", Astro.url));
 
 if (!res.ok) {
