@@ -1,0 +1,97 @@
+---
+export type Props = {
+  title: string;
+  description?: string;
+  current: "home" | "gallery" | "story-builder" | "archive";
+  /** Matches the page's own <main> max-width so the header's content lines up with it. */
+  maxWidth?: string;
+};
+
+const { title, description, current, maxWidth = "1400px" } = Astro.props;
+
+const NAV_LINKS = [
+  { key: "home", href: "/", label: "Search" },
+  { key: "gallery", href: "/gallery", label: "My Gallery" },
+  { key: "story-builder", href: "/story-builder", label: "Story Builder" },
+  { key: "archive", href: "/archive", label: "Archive" },
+] as const;
+---
+
+<header class="masthead">
+  <div class="masthead-inner" style={`max-width: ${maxWidth}`}>
+    <nav class="top-nav">
+      {NAV_LINKS.map((link) => (
+        <a href={link.href} aria-current={link.key === current ? "page" : undefined}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <h1>{title}</h1>
+    {description ? <p>{description}</p> : null}
+
+    <slot />
+  </div>
+</header>
+
+<style>
+  header.masthead {
+    padding: 2.5rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+
+  .masthead-inner {
+    margin: 0 auto;
+  }
+
+  nav.top-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  nav.top-nav a {
+    color: var(--gold-2);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  nav.top-nav a:hover {
+    text-decoration: underline;
+  }
+
+  nav.top-nav a[aria-current="page"] {
+    color: var(--bone-2);
+    font-weight: 400;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  header.masthead h1 {
+    color: var(--gold-2);
+    font-family: "Cinzel", Georgia, serif;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    font-size: clamp(2.1rem, 4.5vw, 2.75rem);
+    margin: 0 0 0.35rem;
+  }
+
+  header.masthead p {
+    margin: 0;
+    color: var(--bone-2);
+    max-width: 60ch;
+  }
+
+  @media (max-width: 680px) {
+    header.masthead {
+      padding: 1.5rem 1rem 1rem;
+    }
+
+    header.masthead h1 {
+      font-size: 1.8rem;
+    }
+  }
+</style>

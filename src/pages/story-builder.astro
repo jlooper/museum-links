@@ -1,4 +1,7 @@
 ---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
 export const prerender = false;
 ---
 
@@ -23,36 +26,13 @@ export const prerender = false;
 
       body {
         margin: 0;
-        padding: 0 0 4rem;
+        padding: 0;
         background: var(--ink);
         color: var(--bone);
         font-family: "Jost", "Avenir Next", Avenir, sans-serif;
-      }
-
-      header.masthead {
-        padding: 2.5rem 2rem 1.5rem;
-        border-bottom: 1px solid var(--line);
-        background: var(--ink-2);
-      }
-
-      .masthead-inner {
-        max-width: 1100px;
-        margin: 0 auto;
-      }
-
-      header.masthead h1 {
-        color: var(--gold-2);
-        font-family: "Cinzel", Georgia, serif;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        font-size: 2.4rem;
-        margin: 0 0 0.35rem;
-      }
-
-      header.masthead p {
-        margin: 0;
-        color: var(--bone-2);
-        max-width: 60ch;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
       }
 
       #webmcp-status {
@@ -72,24 +52,16 @@ export const prerender = false;
         color: oklch(0.78 0.12 145);
       }
 
-      nav.top-nav {
-        display: flex;
-        gap: 1.25rem;
-      }
-
-      nav.top-nav a {
-        color: var(--gold-2);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-
       main {
-        max-width: 1100px;
+        max-width: 1400px;
+        width: 100%;
         margin: 0 auto;
         padding: 2rem;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         gap: 2.5rem;
+        flex: 1 0 auto;
       }
 
       section.panel {
@@ -100,11 +72,27 @@ export const prerender = false;
       }
 
       section.panel h2 {
-        margin-top: 0;
+        margin: 0 0 1.25rem;
         color: var(--gold);
         font-family: "Cinzel", Georgia, serif;
         font-weight: 500;
         font-size: 1.4rem;
+      }
+
+      .panel-group {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+      }
+
+      .panel-group:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+
+      .draft-status-line {
+        margin: 1.25rem 0 0;
       }
 
       .field {
@@ -112,6 +100,14 @@ export const prerender = false;
         flex-direction: column;
         gap: 0.4rem;
         margin-bottom: 0.9rem;
+      }
+
+      /* Inside a .row, a field's own trailing margin becomes part of its flex-item
+         box — align-items: flex-end then aligns to the bottom of that margin, not
+         the bottom of the actual input, throwing off alignment with a sibling
+         button that has no margin. The row's own gap already spaces things. */
+      .row .field {
+        margin-bottom: 0;
       }
 
       .field label {
@@ -184,7 +180,7 @@ export const prerender = false;
 
       .row {
         display: flex;
-        gap: 0.75rem;
+        gap: 1rem;
         flex-wrap: wrap;
         align-items: flex-end;
       }
@@ -236,8 +232,8 @@ export const prerender = false;
       }
 
       #draft-status[data-status="ready_for_review"] {
-        background: #e2f4e6;
-        color: #1e5f34;
+        background: oklch(0.27 0.045 145);
+        color: oklch(0.78 0.12 145);
       }
 
       #draft-status[hidden] {
@@ -457,6 +453,7 @@ export const prerender = false;
          still occupy page height and produce trailing blank pages. */
       @media print {
         header.masthead,
+        .site-footer,
         #draft-panel,
         #search-panel,
         #sequence-panel,
@@ -522,46 +519,41 @@ export const prerender = false;
   </head>
 
   <body>
-    <header class="masthead">
-      <div class="masthead-inner">
-        <nav class="top-nav">
-          <a href="/">&larr; Museum gallery</a>
-          <a href="/archive">Archive &rarr;</a>
-        </nav>
-        <h1>Museum Story Builder</h1>
-        <p>
-          Compose a small visual story from your saved museum collection: gather objects, arrange
-          them into a sequence, write captions and narrative text, and view the result as a small
-          exhibition wall. Every action here also works as a WebMCP tool a supporting browser agent
-          can call directly.
-        </p>
-        <div id="webmcp-status" role="status" aria-live="polite"></div>
-      </div>
-    </header>
+    <Header
+      title="Museum Story Builder"
+      description="Compose a small visual story from your saved museum collection: gather objects, arrange them into a sequence, write captions and narrative text, and view the result as a small exhibition wall. Every action here also works as a WebMCP tool a supporting browser agent can call directly."
+      current="story-builder"
+    >
+      <div id="webmcp-status" role="status" aria-live="polite"></div>
+    </Header>
 
     <main>
       <section class="panel" id="draft-panel">
         <h2>1. Story draft</h2>
 
-        <div class="row">
-          <div class="field">
-            <label for="draft-select">Existing drafts</label>
-            <select id="draft-select"></select>
-          </div>
-          <button id="delete-draft-button" type="button" class="danger" disabled>Delete draft</button>
-        </div>
-
-        <form id="new-draft-form">
+        <div class="panel-group">
           <div class="row">
             <div class="field">
-              <label for="draft-title">Title</label>
-              <input id="draft-title" type="text" maxlength="140" required />
+              <label for="draft-select">Existing drafts</label>
+              <select id="draft-select"></select>
             </div>
-            <button type="submit">Create draft</button>
+            <button id="delete-draft-button" type="button" class="danger" disabled>Delete draft</button>
           </div>
-        </form>
+        </div>
 
-        <p>
+        <div class="panel-group">
+          <form id="new-draft-form">
+            <div class="row">
+              <div class="field">
+                <label for="draft-title">Title</label>
+                <input id="draft-title" type="text" maxlength="140" required />
+              </div>
+              <button type="submit">Create draft</button>
+            </div>
+          </form>
+        </div>
+
+        <p class="draft-status-line">
           Status: <strong id="draft-title-display">No draft selected</strong>
           <span id="draft-status" data-status="draft">draft</span>
         </p>
@@ -580,7 +572,7 @@ export const prerender = false;
             <div class="field">
               <label for="search-source">Source</label>
               <select id="search-source">
-                <option value="">Both</option>
+                <option value="">All</option>
                 <option value="met">The Met</option>
                 <option value="artic">Art Institute of Chicago</option>
                 <option value="cleveland">Cleveland Museum of Art</option>
@@ -619,6 +611,8 @@ export const prerender = false;
         <p id="review-message" role="status"></p>
       </section>
     </main>
+
+    <Footer />
 
     <script>
       import { mountStoryBuilder } from "../lib/client/storyBuilderController";

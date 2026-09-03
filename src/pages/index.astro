@@ -1,4 +1,7 @@
 ---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
 export const prerender = false;
 ---
 
@@ -27,43 +30,22 @@ export const prerender = false;
 
       body {
         margin: 0;
-        padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 6rem;
+        padding: 0;
         background: var(--ink);
         color: var(--bone);
         font-family: "Jost", "Avenir Next", Avenir, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
       }
 
       main {
-        max-width: 1600px;
+        max-width: 1400px;
+        width: 100%;
         margin: 0 auto;
-      }
-
-      .top-nav {
-        margin-bottom: var(--space-lg);
-        display: flex;
-        gap: var(--space-md);
-      }
-
-      .top-nav a {
-        color: var(--gold-2);
-        text-decoration: none;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-      }
-
-      h1 {
-        margin: 0 0 var(--space-sm);
-        color: var(--gold-2);
-        font-family: "Cinzel", Georgia, serif;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        font-size: clamp(2.25rem, 5vw, 3rem);
-      }
-
-      .intro {
-        margin: 0 0 var(--space-lg);
-        color: var(--bone-2);
-        max-width: 60ch;
+        padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 6rem;
+        box-sizing: border-box;
+        flex: 1 0 auto;
       }
 
       #search-form {
@@ -92,7 +74,7 @@ export const prerender = false;
         max-width: 34rem;
         padding: 1rem;
         border-radius: 12px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--line);
         font-size: 1rem;
         font: inherit;
       }
@@ -120,6 +102,19 @@ export const prerender = false;
       #search-form button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+      }
+
+      #search-query:focus-visible,
+      #search-source:focus-visible,
+      #search-form button:focus-visible,
+      #save-button:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 1px;
+      }
+
+      .result-image-wrap input[type="checkbox"]:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
       }
 
       #search-status {
@@ -305,18 +300,13 @@ export const prerender = false;
   </head>
 
   <body>
-    <main>
-      <nav class="top-nav">
-        <a href="/gallery">My gallery &rarr;</a>
-        <a href="/story-builder">Try the WebMCP story builder &rarr;</a>
-        <a href="/archive">Archive &rarr;</a>
-      </nav>
-      <h1>Museum Media Grouper</h1>
-      <p class="intro">
-        Search the Met, the Art Institute of Chicago, and the Cleveland Museum of Art at once.
-        Nothing is saved until you pick the paintings you want and add them to your gallery.
-      </p>
+    <Header
+      title="Museum Media Grouper"
+      description="Search the Met, the Art Institute of Chicago, and the Cleveland Museum of Art at once. Nothing is saved until you pick the paintings you want and add them to your gallery."
+      current="home"
+    />
 
+    <main>
       <form id="search-form">
         <div class="field">
           <label for="search-query">Artist or keyword</label>
@@ -340,6 +330,8 @@ export const prerender = false;
 
       <div id="save-result"></div>
     </main>
+
+    <Footer />
 
     <div id="save-bar" hidden>
       <span><strong id="selected-count">0</strong> selected</span>

@@ -1,0 +1,89 @@
+---
+export type Props = {
+  /** Matches the page's own <main> max-width so the footer's content lines up with it. */
+  maxWidth?: string;
+};
+
+const { maxWidth = "1400px" } = Astro.props;
+---
+
+<footer class="site-footer">
+  <div class="site-footer-inner" style={`max-width: ${maxWidth}`}>
+    <div class="footer-info">
+      <p class="footer-tagline">
+        Museum Media Grouper — search, save, and curate museum art into shareable expositions.
+      </p>
+      <p class="footer-copyright">&copy; 2026 Jen Looper</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="/">Search</a>
+      <a href="/gallery">My Gallery</a>
+      <a href="/story-builder">Story Builder</a>
+      <a href="/archive">Archive</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    min-height: 4.5rem;
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    box-sizing: border-box;
+    border-top: 1px solid var(--line);
+  }
+
+  .site-footer-inner {
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .footer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .footer-tagline {
+    margin: 0;
+    color: var(--bone-2);
+    font-size: 0.85rem;
+  }
+
+  .footer-copyright {
+    margin: 0;
+    color: var(--bone-2);
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+
+  .footer-nav a {
+    color: var(--gold-2);
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+
+  .footer-nav a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 680px) {
+    .site-footer-inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

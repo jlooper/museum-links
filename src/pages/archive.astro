@@ -1,4 +1,7 @@
 ---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
 export const prerender = false;
 ---
 
@@ -23,54 +26,22 @@ export const prerender = false;
 
       body {
         margin: 0;
-        padding: 0 0 4rem;
+        padding: 0;
         background: var(--ink);
         color: var(--bone);
         font-family: "Jost", "Avenir Next", Avenir, sans-serif;
-      }
-
-      header.masthead {
-        padding: 2.5rem 2rem 1.5rem;
-        border-bottom: 1px solid var(--line);
-        background: var(--ink-2);
-      }
-
-      .masthead-inner {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      header.masthead h1 {
-        color: var(--gold-2);
-        font-family: "Cinzel", Georgia, serif;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        font-size: 2.4rem;
-        margin: 0 0 0.35rem;
-      }
-
-      header.masthead p {
-        margin: 0;
-        color: var(--bone-2);
-        max-width: 60ch;
-      }
-
-      nav.top-nav {
         display: flex;
-        gap: 1.25rem;
-        margin-bottom: 1rem;
-      }
-
-      nav.top-nav a {
-        color: var(--gold-2);
-        text-decoration: none;
-        font-size: 0.9rem;
+        flex-direction: column;
+        min-height: 100vh;
       }
 
       main {
         max-width: 1400px;
+        width: 100%;
         margin: 0 auto;
-        padding: 2.5rem 2rem 0;
+        padding: 2.5rem 2rem;
+        box-sizing: border-box;
+        flex: 1 0 auto;
       }
 
       .empty-state {
@@ -164,34 +135,19 @@ export const prerender = false;
         color: var(--gold-2);
       }
 
-      @media (max-width: 680px) {
-        header.masthead {
-          padding: 1.5rem 1rem 1rem;
-        }
-
-        header.masthead h1 {
-          font-size: 2rem;
-        }
-      }
     </style>
   </head>
 
   <body>
-    <header class="masthead">
-      <div class="masthead-inner">
-        <nav class="top-nav">
-          <a href="/">&larr; Museum gallery</a>
-          <a href="/story-builder">Story Builder</a>
-        </nav>
-        <h1>Archive</h1>
-        <p>
-          Every exposition that's been finished and marked ready for review, conserved here
-          permanently as a read-only exhibition wall.
-        </p>
-      </div>
-    </header>
+    <Header
+      title="Archive"
+      description="Every exposition that's been finished and marked ready for review, conserved here permanently as a read-only exhibition wall."
+      current="archive"
+    />
 
     <main id="archive-content"></main>
+
+    <Footer />
 
     <script>
       import { mountArchive } from "../lib/client/archiveController";

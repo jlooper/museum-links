@@ -101,7 +101,11 @@ export function mountMuseumSearch(): void {
     for (const record of results) {
       recordsById.set(record.recordId, record);
 
-      const checkbox = el("input", { type: "checkbox" }) as HTMLInputElement;
+      const checkbox = el("input", {
+        type: "checkbox",
+        "aria-label": `Select ${record.title}`,
+      }) as HTMLInputElement;
+      checkbox.addEventListener("change", () => toggleSelection(record.recordId, card));
 
       const card = el("li", { class: "result-card", "data-record-id": record.recordId }, [
         el("div", { class: "result-image-wrap" }, [
@@ -125,7 +129,8 @@ export function mountMuseumSearch(): void {
       ]);
 
       card.addEventListener("click", (event) => {
-        if ((event.target as HTMLElement).tagName === "A") return;
+        const target = event.target as HTMLElement;
+        if (target.tagName === "A" || target === checkbox) return;
         toggleSelection(record.recordId, card);
       });
 

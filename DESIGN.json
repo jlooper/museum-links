@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-02T00:00:00.000Z",
+  "title": "Design System: Museum Media Grouper",
+  "extensions": {
+    "colorMeta": {
+      "gilt-highlight": {
+        "role": "primary",
+        "displayName": "Gilt Highlight",
+        "canonical": "oklch(0.81 0.09 90)",
+        "tonalRamp": [
+          "oklch(0.20 0.09 90)",
+          "oklch(0.32 0.09 90)",
+          "oklch(0.44 0.10 90)",
+          "oklch(0.56 0.10 90)",
+          "oklch(0.68 0.10 90)",
+          "oklch(0.81 0.09 90)",
+          "oklch(0.90 0.06 90)",
+          "oklch(0.96 0.03 90)"
+        ]
+      },
+      "museum-gold": {
+        "role": "primary",
+        "displayName": "Museum Gold",
+        "canonical": "oklch(0.71 0.1 88)",
+        "tonalRamp": [
+          "oklch(0.18 0.10 88)",
+          "oklch(0.29 0.10 88)",
+          "oklch(0.40 0.11 88)",
+          "oklch(0.52 0.11 88)",
+          "oklch(0.61 0.11 88)",
+          "oklch(0.71 0.10 88)",
+          "oklch(0.85 0.07 88)",
+          "oklch(0.95 0.04 88)"
+        ]
+      },
+      "restoration-red": {
+        "role": "tertiary",
+        "displayName": "Restoration Red",
+        "canonical": "oklch(0.78 0.12 30)",
+        "tonalRamp": [
+          "oklch(0.20 0.10 30)",
+          "oklch(0.32 0.11 30)",
+          "oklch(0.44 0.12 30)",
+          "oklch(0.56 0.12 30)",
+          "oklch(0.67 0.12 30)",
+          "oklch(0.78 0.12 30)",
+          "oklch(0.88 0.08 30)",
+          "oklch(0.95 0.04 30)"
+        ]
+      },
+      "gallery-ink": {
+        "role": "neutral",
+        "displayName": "Gallery Ink",
+        "canonical": "oklch(0.13 0.008 264)",
+        "tonalRamp": [
+          "oklch(0.05 0.006 264)",
+          "oklch(0.13 0.008 264)",
+          "oklch(0.21 0.010 264)",
+          "oklch(0.32 0.010 264)",
+          "oklch(0.46 0.010 264)",
+          "oklch(0.60 0.010 264)",
+          "oklch(0.76 0.008 264)",
+          "oklch(0.92 0.006 264)"
+        ]
+      },
+      "panel-ink": {
+        "role": "neutral",
+        "displayName": "Panel Ink",
+        "canonical": "oklch(0.17 0.01 262)",
+        "tonalRamp": null
+      },
+      "recessed-ink": {
+        "role": "neutral",
+        "displayName": "Recessed Ink",
+        "canonical": "oklch(0.21 0.012 260)",
+        "tonalRamp": null
+      },
+      "bone-white": {
+        "role": "neutral",
+        "displayName": "Bone White",
+        "canonical": "oklch(0.92 0.03 92)",
+        "tonalRamp": [
+          "oklch(0.20 0.020 92)",
+          "oklch(0.32 0.024 92)",
+          "oklch(0.44 0.026 92)",
+          "oklch(0.56 0.028 92)",
+          "oklch(0.68 0.030 92)",
+          "oklch(0.80 0.030 92)",
+          "oklch(0.92 0.030 92)",
+          "oklch(0.97 0.015 92)"
+        ]
+      },
+      "muted-bone": {
+        "role": "neutral",
+        "displayName": "Muted Bone",
+        "canonical": "oklch(0.74 0.03 90)",
+        "tonalRamp": null
+      },
+      "gilt-hairline": {
+        "role": "neutral",
+        "displayName": "Gilt Hairline",
+        "canonical": "oklch(0.71 0.1 88 / 20%)",
+        "tonalRamp": null
+      },
+      "herbarium-green-bg": {
+        "role": "tertiary",
+        "displayName": "Herbarium Green (background)",
+        "canonical": "oklch(0.27 0.045 145)",
+        "tonalRamp": null
+      },
+      "herbarium-green-text": {
+        "role": "tertiary",
+        "displayName": "Herbarium Green (text)",
+        "canonical": "oklch(0.78 0.12 145)",
+        "tonalRamp": null
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The one page <h1>, set in Cinzel. Appears once per page." },
+      "headline": { "displayName": "Headline", "purpose": "Section and panel headings (<h2>), Cinzel, in Museum Gold." },
+      "title": { "displayName": "Title", "purpose": "Card and frame titles (<h3>) for individual artworks, in Jost bold." },
+      "body": { "displayName": "Body", "purpose": "All prose, descriptions, captions, and metadata." },
+      "label": { "displayName": "Label", "purpose": "Uppercase micro-labels above every form field, museum-wall-text style." }
+    },
+    "shadows": [
+      { "name": "gallery-lift", "value": "0 1rem 2rem oklch(0.05 0.01 264 / 28%)", "purpose": "The system's only shadow. Present at rest on every card and framed image, as if lit from above." }
+    ],
+    "motion": [
+      { "name": "card-hover-lift", "value": "transform: translateY(-4px); transition: transform 0.25s ease, border-color 0.25s ease;", "purpose": "Interactive cards (search results, gallery items) lift slightly and brighten their border on hover. Read-only Archive frames skip this entirely." },
+      { "name": "focus-ring", "value": "outline: 2px solid oklch(0.71 0.1 88); outline-offset: 1px;", "purpose": "Every interactive control's :focus-visible state, matching Museum Gold." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "680px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default call-to-action button: Create draft, Search, Save selected.",
+      "html": "<button class=\"ds-btn-primary\">Search</button>",
+      "css": ".ds-btn-primary { font: inherit; cursor: pointer; border: none; border-radius: 2px; padding: 0.65rem 1.1rem; background: oklch(0.71 0.1 88); color: oklch(0.13 0.008 264); font-weight: 600; transition: opacity 0.15s ease; } .ds-btn-primary:hover { opacity: 0.92; } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.81 0.09 90); outline-offset: 1px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Lower-emphasis actions alongside a primary button, e.g. Preview story next to Mark ready for review.",
+      "html": "<button class=\"ds-btn-secondary\">Preview story</button>",
+      "css": ".ds-btn-secondary { font: inherit; cursor: pointer; border-radius: 2px; padding: 0.65rem 1.1rem; background: oklch(0.21 0.012 260); color: oklch(0.92 0.03 92); border: 1px solid oklch(0.71 0.1 88 / 20%); }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Reserved for destructive actions only: Delete draft, Delete image.",
+      "html": "<button class=\"ds-btn-danger\">Delete draft</button>",
+      "css": ".ds-btn-danger { font: inherit; cursor: pointer; border-radius: 2px; padding: 0.45rem 0.7rem; background: transparent; color: oklch(0.78 0.12 30); border: 1px solid oklch(0.65 0.16 30 / 70%); } .ds-btn-danger:hover { background: oklch(0.65 0.16 30 / 15%); }"
+    },
+    {
+      "name": "Museum Badge",
+      "kind": "chip",
+      "refersTo": "badge-pill",
+      "description": "Fully-rounded pill used for museum-name tags and the 'Saved' indicator.",
+      "html": "<span class=\"ds-badge\">Art Institute of Chicago</span>",
+      "css": ".ds-badge { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 999px; background: oklch(0.21 0.012 260); color: oklch(0.81 0.09 90); font-size: 0.78rem; }"
+    },
+    {
+      "name": "Labeled Field",
+      "kind": "input",
+      "refersTo": "field-label",
+      "description": "The standard form field: an uppercase micro-label above the input, used on every form in the app.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Artist or keyword</span><input class=\"ds-field-input\" type=\"search\" placeholder=\"Monet, textiles, migration…\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.4rem; } .ds-field-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: oklch(0.81 0.09 90); } .ds-field-input { font: inherit; padding: 0.65rem 0.85rem; border: 1px solid oklch(0.71 0.1 88 / 20%); border-radius: 2px; background: oklch(0.21 0.012 260); color: oklch(0.92 0.03 92); } .ds-field-input:hover { border-color: oklch(0.71 0.1 88 / 45%); } .ds-field-input:focus-visible { outline: 2px solid oklch(0.71 0.1 88); outline-offset: 1px; border-color: oklch(0.71 0.1 88); }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Top navigation link, with a distinct muted, non-clickable style for the current page.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"/\">Search</a><a class=\"ds-nav-link ds-nav-link-current\" href=\"/gallery\" aria-current=\"page\">My Gallery</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 1.25rem; } .ds-nav-link { color: oklch(0.81 0.09 90); text-decoration: none; font-size: 0.9rem; font-weight: 600; } .ds-nav-link:hover { text-decoration: underline; } .ds-nav-link-current { color: oklch(0.74 0.03 90); font-weight: 400; cursor: default; pointer-events: none; }"
+    },
+    {
+      "name": "Exhibition Frame",
+      "kind": "card",
+      "refersTo": "frame",
+      "description": "The signature component: a framed artwork with a museum-plaque caption beneath it. Repeats across search results, the gallery, the Story Builder, and the Archive.",
+      "html": "<figure class=\"ds-frame\"><img class=\"ds-frame-img\" src=\"https://example.org/painting.jpg\" alt=\"Water Lilies\" /><figcaption class=\"ds-frame-caption\"><p class=\"ds-frame-attribution\">Water Lilies — Claude Monet, 1906</p><p class=\"ds-frame-narrative\">Painted during Monet's final decades at Giverny.</p></figcaption></figure>",
+      "css": ".ds-frame { margin: 0; display: flex; flex-direction: column; background: oklch(0.17 0.01 262); border: 1px solid oklch(0.71 0.1 88 / 20%); box-shadow: 0 1rem 2rem oklch(0.05 0.01 264 / 28%); padding: 1rem; } .ds-frame-img { display: block; width: 100%; height: 240px; object-fit: cover; margin: 0 0 0.9rem; padding: 0.45rem; border: 1px solid oklch(0.71 0.1 88 / 55%); box-sizing: border-box; background: oklch(0.13 0.008 264); } .ds-frame-caption { display: flex; flex-direction: column; gap: 0.35rem; } .ds-frame-attribution { margin: 0; font-size: 0.85rem; font-weight: 600; color: oklch(0.81 0.09 90); } .ds-frame-narrative { margin: 0; font-size: 0.85rem; color: oklch(0.74 0.03 90); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Conservation Room",
+    "overview": "This is the quiet, careful back-room of a museum where objects are handled, catalogued, and kept, not the public-facing marketing lobby out front. Everything about the interface is hushed and unhurried: dark, low-contrast chrome that never competes with the artwork sitting on it, generous negative space, and typography that reads like catalog copy rather than a pitch. Nothing here blinks, pulses, or auto-advances. The pace is the pace of actually looking at a painting. The system explicitly rejects the generic SaaS-dashboard vocabulary: no hero-metric tiles, no bright gradient accents, no identical icon+heading+text card grids, no glassy translucent panels. It also rejects the cluttered, link-dense look of many real institutional museum websites. The restraint here is deliberate, not accidental or unfinished.",
+    "keyCharacteristics": [
+      "Dark ink backgrounds at three tonal steps, never pure black.",
+      "A single warm gold accent family, used for headings, labels, and primary actions, and almost nowhere else.",
+      "Every card and framed image casts one consistent, soft ambient shadow, as if lit from above in a gallery.",
+      "Sharp, squared-off 2px corners everywhere except badges (fully rounded) and the one prominent hero search field (softer 12px, a deliberate one-off)."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Gold (in its two tones) is the only saturated color used for ordinary UI. Red and green exist solely as status signals for destructive and completion states, never as decoration.", "section": "colors" },
+      { "name": "The Museum-Plaque Rule", "body": "Any label, caption, or attribution reads like the small printed card beside a painting on a wall: factual, uppercase-or-italic, never promotional.", "section": "typography" },
+      { "name": "The One Shadow Rule", "body": "There is no elevation scale. A single soft ambient shadow does the work of lifting every card-like surface off the ink background; adding a second, heavier shadow tier would break the calm the rest of the system works to establish.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use OKLCH for every color, reducing chroma as lightness approaches the extremes.",
+      "Do give every framed artwork the Exhibition Frame treatment: thin gold hairline border, content-aware crop, plaque-style caption beneath it.",
+      "Do keep corners sharp (2px) by default; treat the 12px hero-search radius and 999px badge pills as the only two named exceptions.",
+      "Do write labels and captions like museum wall text: factual, terse, never promotional.",
+      "Do give every interactive control the same 2px gold :focus-visible outline."
+    ],
+    "donts": [
+      "Don't build hero-metric tiles, bright gradient accents, or glassy translucent panels.",
+      "Don't repeat identical icon+heading+text cards in a grid.",
+      "Don't use a second shadow tier.",
+      "Don't introduce a light-mode color pairing for a new status color; tune it in OKLCH instead.",
+      "Don't make the Archive's conserved exhibitions hover or lift like editable cards do."
+    ]
+  }
+}
